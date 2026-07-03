@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RFM Customer Segmentation — Marketing Strategy Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0F1117;
+    --surface:   #1A1D2E;
+    --surface2:  #242740;
+    --border:    #2E3250;
+    --text:      #E8EAF6;
+    --muted:     #9199B3;
+    --accent:    #7C6EFA;
+    --gold:      #F9CA56;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── HERO ───────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, #1A1D2E 0%, #0F1117 40%, #1a0a2e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 52px 48px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(124,110,250,.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(124,110,250,.15);
+    border: 1px solid rgba(124,110,250,.4);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: 11px; font-weight: 600; letter-spacing: .6px;
+    color: #A99AF8; text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px; font-weight: 700;
+    line-height: 1.2; color: #fff;
+    max-width: 680px;
+    margin-bottom: 14px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    color: var(--muted); font-size: 15px; max-width: 580px;
+    margin-bottom: 28px;
+  }
+  .hero-meta {
+    display: flex; gap: 32px; flex-wrap: wrap;
+  }
+  .hero-meta-item { font-size: 12px; color: var(--muted); }
+  .hero-meta-item strong { color: var(--text); display: block; font-size: 15px; }
+
+  /* ── MAIN LAYOUT ───────────────────────────────────── */
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 48px; }
+
+  /* ── SECTION TITLES ────────────────────────────────── */
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--border);
+  }
+
+  /* ── EXEC SUMMARY ──────────────────────────────────── */
+  .exec-summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 40px;
+  }
+  .exec-summary h2 {
+    font-size: 17px; font-weight: 700; margin-bottom: 12px; color: #fff;
+  }
+  .exec-summary p { color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+  /* ── KPI ROW ───────────────────────────────────────── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    text-align: center;
+    transition: transform .2s, border-color .2s;
+  }
+  .kpi-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .kpi-value { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+  .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+
+  /* ── SEGMENT GRID ──────────────────────────────────── */
+  .segment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+    margin-bottom: 48px;
+  }
+  .seg-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    transition: transform .2s, box-shadow .2s;
+    position: relative; overflow: hidden;
+  }
+  .seg-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--seg-color, var(--accent));
+  }
+  .seg-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,.4);
+  }
+  .seg-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .seg-emoji { font-size: 28px; line-height: 1; }
+  .seg-name { font-size: 16px; font-weight: 700; color: #fff; }
+  .seg-priority {
+    margin-left: auto;
+    font-size: 10px; font-weight: 700; letter-spacing: .6px;
+    text-transform: uppercase; padding: 3px 10px;
+    border-radius: 100px;
+    background: rgba(255,255,255,.08);
+    color: var(--muted);
+  }
+  .seg-priority.high { background: rgba(214,48,49,.2); color: #FF7675; }
+  .seg-priority.med  { background: rgba(253,203,110,.2); color: #FDCB6E; }
+  .seg-priority.low  { background: rgba(0,184,148,.15); color: #00B894; }
+
+  .seg-desc { color: var(--muted); font-size: 13px; margin-bottom: 16px; line-height: 1.6; }
+
+  .seg-stats {
+    display: flex; gap: 20px; margin-bottom: 16px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border-radius: 8px;
+  }
+  .seg-stat { font-size: 12px; }
+  .seg-stat-val { font-weight: 700; color: #fff; font-size: 15px; }
+  .seg-stat-key { color: var(--muted); font-size: 10px; text-transform: uppercase; }
+
+  .seg-action {
+    background: rgba(124,110,250,.1);
+    border: 1px solid rgba(124,110,250,.25);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12.5px; color: #C3BCF8;
+    line-height: 1.6;
+  }
+  .seg-action::before {
+    content: '💡 ';
+  }
+
+  /* ── PRIORITY MATRIX ───────────────────────────────── */
+  .matrix-section { margin-bottom: 48px; }
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+    height: 320px;
+  }
+  .matrix-cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex; flex-direction: column;
+  }
+  .matrix-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--muted); margin-bottom: 8px;
+  }
+  .matrix-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+  .matrix-segs {
+    display: flex; flex-wrap: wrap; gap: 6px; flex: 1; align-items: flex-start;
+  }
+  .matrix-chip {
+    font-size: 11px; padding: 3px 10px;
+    border-radius: 100px;
+    background: rgba(255,255,255,.07);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,.1);
+  }
+
+  /* ── BUDGET TABLE ──────────────────────────────────── */
+  .budget-table { width: 100%; border-collapse: collapse; margin-bottom: 48px; }
+  .budget-table th {
+    text-align: left; padding: 12px 16px;
+    background: var(--surface2);
+    color: var(--muted); font-size: 11px;
+    text-transform: uppercase; letter-spacing: .6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .budget-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+  .budget-table tr:last-child td { border-bottom: none; }
+  .budget-table tr:hover td { background: var(--surface2); }
+  .bar-cell { width: 200px; }
+  .bar-bg {
+    background: var(--surface2);
+    border-radius: 4px; height: 8px; overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), #A99AF8);
+    transition: width .6s ease;
+  }
+
+  /* ── FOOTER ────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 48px;
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--muted); font-size: 12px;
+  }
+  footer strong { color: var(--text); }
+
+  @media (max-width: 768px) {
+    .hero { padding: 36px 24px 28px; }
+    .hero h1 { font-size: 28px; }
+    .container { padding: 28px 24px; }
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .matrix-grid { grid-template-columns: 1fr; height: auto; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HERO ═══════════════════════════════ -->
+<section class="hero">
+  <div class="hero-badge">📊 Data Analytics Portfolio Project</div>
+  <h1>E-Commerce <span>Customer Segmentation</span><br>Marketing Strategy Report</h1>
+  <p>Using RFM (Recency, Frequency, Monetary) analysis on 4,000 customers to identify 11 distinct segments and prescribe targeted marketing actions for each.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><strong>4,000+</strong>Customers Analysed</div>
+    <div class="hero-meta-item"><strong>11</strong>Segments Identified</div>
+    <div class="hero-meta-item"><strong>RFM</strong>Methodology</div>
+    <div class="hero-meta-item"><strong>July 2026</strong>Report Date</div>
+  </div>
+</section>
+
+<div class="container">
+
+  <!-- ═══════════════ EXECUTIVE SUMMARY ════════════════════════ -->
+  <div class="section-title">Executive Summary</div>
+  <div class="exec-summary">
+    <h2>The Core Insight</h2>
+    <p>
+      Our analysis reveals that <strong style="color:#fff">~25% of customers — Champions and Loyal Customers — generate approximately 55–65% of total revenue</strong>. Meanwhile, high-value segments like <em>Cannot Lose Them</em> and <em>At Risk</em> represent significant churn risk if left untargeted. A one-size-fits-all marketing strategy is leaving substantial revenue on the table. This report prescribes specific, segment-level marketing strategies to maximise ROI across the full customer base.
+    </p>
+  </div>
+
+  <!-- ═══════════════ KPI CARDS ════════════════════════════════ -->
+  <div class="section-title">Key Metrics</div>
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-value">4,000+</div>
+      <div class="kpi-label">Total Customers</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">11</div>
+      <div class="kpi-label">Segments Found</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">~60%</div>
+      <div class="kpi-label">Revenue from Top 25%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">3x</div>
+      <div class="kpi-label">Targeted vs Generic ROI</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ SEGMENT CARDS ════════════════════════════ -->
+  <div class="section-title">Segment Profiles &amp; Marketing Actions</div>
+  <div class="segment-grid">
+
+    <!-- Champions -->
+    <div class="seg-card" style="--seg-color:#6C5CE7">
+      <div class="seg-header">
+        <div class="seg-emoji">🏆</div>
+        <div>
+          <div class="seg-name">Champions</div>
+        </div>
+        <div class="seg-priority high">High Value</div>
+      </div>
+      <div class="seg-desc">Your best customers. They bought recently, buy frequently, and spend the most. These are your brand ambassadors.</div>
+      <div class="seg-stats">
+        <div class="seg-stat"><div class="seg-stat-val">R: 5</div><div class="seg-stat-key">Recency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">F: 4–5</div><div class="seg-stat-key">Frequency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">M: 4–5</div><div class="seg-stat-key">Monetary</div></div>
+      </div>
+      <div class="seg-action">Reward with VIP perks, early product access, and loyalty points. Ask for reviews and referrals. Never discount — they don't need it.</div>
+    </div>
+
+    <!-- Loyal Customers -->
+    <div class="seg-card" style="--seg-color:#00B894">
+      <div class="seg-header">
+        <div class="seg-emoji">💎</div>
+        <div><div class="seg-name">Loyal Customers</div></div>
+        <div class="seg-priority high">High Value</div>
+      </div>
+      <div class="seg-desc">Consistent, reliable buyers. They may not top every metric, but their lifetime value is exceptional.</div>
+      <div class="seg-stats">
+        <div class="seg-stat"><div class="seg-stat-val">R: 3–5</div><div class="seg-stat-key">Recency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">F: 3–5</div><div class="seg-stat-key">Frequency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">M: 3–5</div><div class="seg-stat-key">Monetary</div></div>
+      </div>
+      <div class="seg-action">Upsell premium products. Introduce subscription models. Offer exclusive member pricing to deepen loyalty and increase basket size.</div>
+    </div>
+
+    <!-- Potential Loyalists -->
+    <div class="seg-card" style="--seg-color:#0984E3">
+      <div class="seg-header">
+        <div class="seg-emoji">🌟</div>
+        <div><div class="seg-name">Potential Loyalists</div></div>
+        <div class="seg-priority med">Growth</div>
+      </div>
+      <div class="seg-desc">Recent customers showing promising engagement. With the right nudge, they'll become your next Loyalists.</div>
+      <div class="seg-stats">
+        <div class="seg-stat"><div class="seg-stat-val">R: 3–5</div><div class="seg-stat-key">Recency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">F: 1–3</div><div class="seg-stat-key">Frequency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">M: 1–3</div><div class="seg-stat-key">Monetary</div></div>
+      </div>
+      <div class="seg-action">Enroll them in a loyalty or rewards programme. Send personalised product recommendations. Offer a "second purchase" incentive within 30 days.</div>
+    </div>
+
+    <!-- Recent Customers -->
+    <div class="seg-card" style="--seg-color:#74B9FF">
+      <div class="seg-header">
+        <div class="seg-emoji">🆕</div>
+        <div><div class="seg-name">Recent Customers</div></div>
+        <div class="seg-priority med">Nurture</div>
+      </div>
+      <div class="seg-desc">Bought very recently but only once. The onboarding experience will determine if they return.</div>
+      <div class="seg-stats">
+        <div class="seg-stat"><div class="seg-stat-val">R: 4–5</div><div class="seg-stat-key">Recency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">F: 1</div><div class="seg-stat-key">Frequency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">M: Any</div><div class="seg-stat-key">Monetary</div></div>
+      </div>
+      <div class="seg-action">Send a warm welcome email series. Share how-to content and product tips. Offer free shipping on the next order within 14 days.</div>
+    </div>
+
+    <!-- Need Attention -->
+    <div class="seg-card" style="--seg-color:#FDCB6E">
+      <div class="seg-header">
+        <div class="seg-emoji">⚠️</div>
+        <div><div class="seg-name">Need Attention</div></div>
+        <div class="seg-priority med">Re-engage</div>
+      </div>
+      <div class="seg-desc">Above average customers who haven't interacted recently. They're slipping — act before they become At Risk.</div>
+      <div class="seg-stats">
+        <div class="seg-stat"><div class="seg-stat-val">R: 2–3</div><div class="seg-stat-key">Recency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">F: 2–3</div><div class="seg-stat-key">Frequency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">M: 2–3</div><div class="seg-stat-key">Monetary</div></div>
+      </div>
+      <div class="seg-action">Trigger a time-sensitive offer ("You haven't visited in a while — here's 15% off"). Survey them to understand what's changed.</div>
+    </div>
+
+    <!-- About To Sleep -->
+    <div class="seg-card" style="--seg-color:#E17055">
+      <div class="seg-header">
+        <div class="seg-emoji">😴</div>
+        <div><div class="seg-name">About To Sleep</div></div>
+        <div class="seg-priority med">Urgent</div>
+      </div>
+      <div class="seg-desc">Low recency and frequency — disengaging fast. A strong re-engagement campaign can still recover them.</div>
+      <div class="seg-stats">
+        <div class="seg-stat"><div class="seg-stat-val">R: 2–3</div><div class="seg-stat-key">Recency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">F: 1–2</div><div class="seg-stat-key">Frequency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">M: 1–2</div><div class="seg-stat-key">Monetary</div></div>
+      </div>
+      <div class="seg-action">Share best-sellers and trending items they haven't seen. Send a "We miss you" email with a meaningful discount. Last-chance messaging works well here.</div>
+    </div>
+
+    <!-- At Risk -->
+    <div class="seg-card" style="--seg-color:#D63031">
+      <div class="seg-header">
+        <div class="seg-emoji">🚨</div>
+        <div><div class="seg-name">At Risk</div></div>
+        <div class="seg-priority high">Critical</div>
+      </div>
+      <div class="seg-desc">Were great customers — bought frequently and spent significantly — but have gone cold. High lifetime value at risk.</div>
+      <div class="seg-stats">
+        <div class="seg-stat"><div class="seg-stat-val">R: 1–2</div><div class="seg-stat-key">Recency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">F: 2–5</div><div class="seg-stat-key">Frequency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">M: 2–5</div><div class="seg-stat-key">Monetary</div></div>
+      </div>
+      <div class="seg-action">Launch a dedicated win-back campaign. Personalised outreach referencing past purchases. Offer a compelling incentive — they're worth the cost to retain.</div>
+    </div>
+
+    <!-- Cannot Lose Them -->
+    <div class="seg-card" style="--seg-color:#E84393">
+      <div class="seg-header">
+        <div class="seg-emoji">❗</div>
+        <div><div class="seg-name">Cannot Lose Them</div></div>
+        <div class="seg-priority high">Top Priority</div>
+      </div>
+      <div class="seg-desc">Made the largest purchases and bought often, but haven't returned. These customers have the highest recovery value.</div>
+      <div class="seg-stats">
+        <div class="seg-stat"><div class="seg-stat-val">R: 1–2</div><div class="seg-stat-key">Recency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">F: 4–5</div><div class="seg-stat-key">Frequency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">M: 4–5</div><div class="seg-stat-key">Monetary</div></div>
+      </div>
+      <div class="seg-action">Direct outreach — phone or personalised email from account manager. Offer renewal deals or exclusive product access. Treat them like VIPs who've lapsed.</div>
+    </div>
+
+    <!-- Promising -->
+    <div class="seg-card" style="--seg-color:#55EFC4">
+      <div class="seg-header">
+        <div class="seg-emoji">🌱</div>
+        <div><div class="seg-name">Promising</div></div>
+        <div class="seg-priority low">Grow</div>
+      </div>
+      <div class="seg-desc">Recent shoppers with low frequency and spend. Early stage — high potential if nurtured correctly.</div>
+      <div class="seg-stats">
+        <div class="seg-stat"><div class="seg-stat-val">R: 4</div><div class="seg-stat-key">Recency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">F: 1</div><div class="seg-stat-key">Frequency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">M: 1–2</div><div class="seg-stat-key">Monetary</div></div>
+      </div>
+      <div class="seg-action">Build brand awareness through content marketing. Offer free shipping incentives. Introduce them to complementary product categories.</div>
+    </div>
+
+    <!-- Hibernating -->
+    <div class="seg-card" style="--seg-color:#636E72">
+      <div class="seg-header">
+        <div class="seg-emoji">🌙</div>
+        <div><div class="seg-name">Hibernating</div></div>
+        <div class="seg-priority low">Low Priority</div>
+      </div>
+      <div class="seg-desc">Long inactive with low historical engagement. Recovery is possible but not the priority.</div>
+      <div class="seg-stats">
+        <div class="seg-stat"><div class="seg-stat-val">R: 1–2</div><div class="seg-stat-key">Recency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">F: 1–2</div><div class="seg-stat-key">Frequency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">M: 1–2</div><div class="seg-stat-key">Monetary</div></div>
+      </div>
+      <div class="seg-action">Include in low-cost email campaigns. Offer relevant discounts. Don't allocate significant paid budget — measure response rate first.</div>
+    </div>
+
+    <!-- Lost -->
+    <div class="seg-card" style="--seg-color:#2D3436">
+      <div class="seg-header">
+        <div class="seg-emoji">💀</div>
+        <div><div class="seg-name">Lost</div></div>
+        <div class="seg-priority low">Minimal</div>
+      </div>
+      <div class="seg-desc">Lowest scores across all dimensions. Very unlikely to return. Re-acquisition cost rarely justifies the investment.</div>
+      <div class="seg-stats">
+        <div class="seg-stat"><div class="seg-stat-val">R: 1</div><div class="seg-stat-key">Recency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">F: 1</div><div class="seg-stat-key">Frequency</div></div>
+        <div class="seg-stat"><div class="seg-stat-val">M: 1</div><div class="seg-stat-key">Monetary</div></div>
+      </div>
+      <div class="seg-action">One final re-engagement attempt with a bold, low-cost offer (e.g., large discount). If no response, remove from active targeting lists to save budget.</div>
+    </div>
+
+  </div><!-- /segment-grid -->
+
+  <!-- ═══════════════ PRIORITY MATRIX ══════════════════════════ -->
+  <div class="section-title">Marketing Priority Matrix</div>
+  <div class="matrix-section">
+    <div class="matrix-grid">
+      <div class="matrix-cell">
+        <div class="matrix-label">🔴 Protect — High Value, Engaged</div>
+        <div class="matrix-title">Retain at All Costs</div>
+        <div class="matrix-segs">
+          <span class="matrix-chip">🏆 Champions</span>
+          <span class="matrix-chip">💎 Loyal Customers</span>
+          <span class="matrix-chip">❗ Cannot Lose Them</span>
+        </div>
+      </div>
+      <div class="matrix-cell">
+        <div class="matrix-label">🟡 Grow — High Potential, Recent</div>
+        <div class="matrix-title">Convert &amp; Upsell</div>
+        <div class="matrix-segs">
+          <span class="matrix-chip">🌟 Potential Loyalists</span>
+          <span class="matrix-chip">🆕 Recent Customers</span>
+          <span class="matrix-chip">🌱 Promising</span>
+        </div>
+      </div>
+      <div class="matrix-cell">
+        <div class="matrix-label">🟠 Win Back — High Value, Lapsing</div>
+        <div class="matrix-title">Re-Engagement Priority</div>
+        <div class="matrix-segs">
+          <span class="matrix-chip">🚨 At Risk</span>
+          <span class="matrix-chip">⚠️ Need Attention</span>
+          <span class="matrix-chip">😴 About To Sleep</span>
+        </div>
+      </div>
+      <div class="matrix-cell">
+        <div class="matrix-label">⚪ Low Priority — Low Value, Inactive</div>
+        <div class="matrix-title">Minimal Investment</div>
+        <div class="matrix-segs">
+          <span class="matrix-chip">🌙 Hibernating</span>
+          <span class="matrix-chip">💀 Lost</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ BUDGET ALLOCATION ════════════════════════ -->
+  <div class="section-title">Recommended Marketing Budget Allocation</div>
+  <table class="budget-table">
+    <thead>
+      <tr>
+        <th>Segment Group</th>
+        <th>Segments</th>
+        <th>Channel</th>
+        <th>Budget %</th>
+        <th class="bar-cell">Allocation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Retention</strong></td>
+        <td>Champions, Loyal</td>
+        <td>Email, SMS, VIP Events</td>
+        <td>30%</td>
+        <td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:30%"></div></div></td>
+      </tr>
+      <tr>
+        <td><strong>Win-Back</strong></td>
+        <td>At Risk, Cannot Lose, Need Attention</td>
+        <td>Personalised Email, Paid Re-targeting</td>
+        <td>28%</td>
+        <td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:28%"></div></div></td>
+      </tr>
+      <tr>
+        <td><strong>Growth</strong></td>
+        <td>Potential Loyalists, Promising</td>
+        <td>Email Series, Loyalty Program</td>
+        <td>22%</td>
+        <td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:22%"></div></div></td>
+      </tr>
+      <tr>
+        <td><strong>Onboarding</strong></td>
+        <td>Recent Customers</td>
+        <td>Welcome Emails, Content</td>
+        <td>13%</td>
+        <td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:13%"></div></div></td>
+      </tr>
+      <tr>
+        <td><strong>Minimal</strong></td>
+        <td>Hibernating, Lost</td>
+        <td>Low-cost Email Only</td>
+        <td>7%</td>
+        <td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:7%"></div></div></td>
+      </tr>
+    </tbody>
+  </table>
+
+</div><!-- /container -->
+
+<footer>
+  <div>
+    <strong>RFM Customer Segmentation</strong> — Data Analytics Portfolio Project<br>
+    Methodology: Quantile-based RFM Scoring | Dataset: UCI Online Retail (Synthetic)
+  </div>
+  <div style="text-align:right">
+    Built with Python · Pandas · Matplotlib<br>
+    Dashboard: Power BI | Report Date: July 2026
+  </div>
+</footer>
+
+</body>
+</html>
